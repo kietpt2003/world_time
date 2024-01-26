@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1032027946166",
+    "project_id": "flutterfirebase-faed4",
+    "storage_bucket": "flutterfirebase-faed4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1032027946166:android:dd091144615b671471fa17",
+        "android_client_info": {
+          "package_name": "com.example.world_time"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp0Ow8CzrWTMy0Dndd8Lng_6dNs78aYSA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
