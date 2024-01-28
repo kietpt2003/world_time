@@ -1,10 +1,31 @@
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:world_time/features/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:world_time/features/user_auth/presentation/pages/login_page.dart';
 import 'package:world_time/features/user_auth/presentation/widgets/form_container_widget.dart';
+import 'package:world_time/global/common/toast.dart';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  bool _isSigningUp = false;
+  final FirebaseAuthService _auth = FirebaseAuthService();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,92 +41,126 @@ class SignUpPage extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Sign Up",
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Sign Up",
+                  style: TextStyle(
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              const FormContainerWidget(
-                hintText: "Username",
-                isPsswordField: false,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const FormContainerWidget(
-                hintText: "Email",
-                isPsswordField: false,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const FormContainerWidget(
-                hintText: "Password",
-                isPsswordField: true,
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Container(
-                width: double.infinity,
-                height: 45,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
+                const SizedBox(
+                  height: 30,
                 ),
-                child: const Center(
-                  child: Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                FormContainerWidget(
+                  controller: _usernameController,
+                  hintText: "Username",
+                  isPsswordField: false,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                FormContainerWidget(
+                  controller: _emailController,
+                  hintText: "Email",
+                  isPsswordField: false,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                FormContainerWidget(
+                  controller: _passwordController,
+                  hintText: "Password",
+                  isPsswordField: true,
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                GestureDetector(
+                  onTap: _signUp,
+                  child: Container(
+                    width: double.infinity,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: _isSigningUp
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an account?"),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Already have an account?"),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
                         ),
-                        (route) => false,
-                      );
-                    },
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  )
-                ],
-              )
-            ],
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _signUp() async {
+    setState(() {
+      _isSigningUp = true;
+    });
+    String username = _usernameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+    setState(() {
+      _isSigningUp = false;
+    });
+
+    if (user != null) {
+      showToast(message: 'User is successfully created');
+      Navigator.pushReplacementNamed(context, "/home");
+    } else {
+      print("Some error happened");
+      // showToast(message: "Some error happened");
+    }
   }
 }
