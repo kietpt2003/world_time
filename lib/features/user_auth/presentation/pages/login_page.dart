@@ -1,11 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:world_time/features/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:world_time/features/user_auth/presentation/pages/home_page.dart';
 import 'package:world_time/features/user_auth/presentation/pages/sign_up_page.dart';
 import 'package:world_time/features/user_auth/presentation/widgets/form_container_widget.dart';
-import 'package:world_time/pages/home.dart';
+import 'package:world_time/global/common/toast.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool _isSigning = false;
+  final FirebaseAuthService _auth = FirebaseAuthService();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +37,9 @@ class LoginPage extends StatelessWidget {
           ),
         ),
         backgroundColor: Colors.blue,
+        // leading: const BackButton(
+        //   color: Colors.white,
+        // ),
       ),
       body: Center(
         child: Padding(
@@ -35,14 +57,16 @@ class LoginPage extends StatelessWidget {
               const SizedBox(
                 height: 30,
               ),
-              const FormContainerWidget(
+              FormContainerWidget(
+                controller: _emailController,
                 hintText: "Email",
                 isPsswordField: false,
               ),
               const SizedBox(
                 height: 10,
               ),
-              const FormContainerWidget(
+              FormContainerWidget(
+                controller: _passwordController,
                 hintText: "Password",
                 isPsswordField: true,
               ),
@@ -50,14 +74,7 @@ class LoginPage extends StatelessWidget {
                 height: 30,
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  );
-                },
+                onTap: _signIn,
                 child: Container(
                   width: double.infinity,
                   height: 45,
@@ -65,14 +82,18 @@ class LoginPage extends StatelessWidget {
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Center(
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  child: Center(
+                    child: _isSigning
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -111,5 +132,25 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _signIn() async {
+    setState(() {
+      _isSigning = true;
+    });
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+    setState(() {
+      _isSigning = false;
+    });
+    if (user != null) {
+      showToast(message: 'User is successfully signedIn');
+      Navigator.pushReplacementNamed(context, "/home");
+    } else {
+      print("Some error happened");
+      // showToast(message: "Some error happened");
+    }
   }
 }
