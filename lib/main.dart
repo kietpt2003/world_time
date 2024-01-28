@@ -3,6 +3,7 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:world_time/features/app/splash_screen/splash_screen.dart';
+import 'package:world_time/features/user_auth/presentation/pages/home_page.dart';
 import 'package:world_time/features/user_auth/presentation/pages/login_page.dart';
 import 'package:world_time/pages/choose_location.dart';
 import 'package:world_time/pages/home.dart';
@@ -55,10 +56,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/home': (context) => const HomePage(),
+        '/login': (context) => const LoginPage(),
+      },
       title: 'Flutter Firebase',
-      home: SplashScreen(
+      home: const SplashScreen(
         child: LoginPage(),
       ),
     );
