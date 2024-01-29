@@ -12,7 +12,7 @@ import 'package:world_time/pages/loading.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: FirebaseOptions(
+    options: const FirebaseOptions(
       apiKey: "AIzaSyDp0Ow8CzrWTMy0Dndd8Lng_6dNs78aYSA",
       projectId: "flutterfirebase-faed4",
       messagingSenderId: "1032027946166",
